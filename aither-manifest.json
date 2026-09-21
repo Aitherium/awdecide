@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1",
+  "name": "awdecide",
+  "description": "One typed-decision contract -- choice / score / bool with a probability -- over a ladder of backends you already run (rules, tiny local models, an LLM's logprobs), fail-closed, with a Brier ledger that resolves every decision against its outcome.",
+  "url": "https://aitherium.github.io/awdecide/",
+  "repository": "https://github.com/Aitherium/awdecide",
+  "kind": "tool",
+  "status": "planned",
+  "adopt": "Ask one typed question of one state and read back a decision, a probability, and decided=False when nothing earned it.",
+  "pairs_with": [
+    "awclassify",
+    "awpredict",
+    "awdk",
+    "awprove",
+    "awgraph",
+    "awtoll",
+    "awrepl"
+  ],
+  "includes": [],
+  "metrics": {
+    "files": {
+      "value": 11,
+      "as_of": "2026-09-20T00:00:00-07:00"
+    },
+    "tests": {
+      "value": 26,
+      "as_of": "2026-09-20T00:00:00-07:00"
+    }
+  }
+}

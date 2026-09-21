@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "awdecide"
+version = "0.3.0"
+description = "One typed-decision contract -- choice / score / bool with a probability -- fail-closed, with a Brier ledger. Aither World Decide."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+awdecide = "awdecide.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Aitherium/awdecide"
+Documentation = "https://github.com/Aitherium/awdecide#readme"
+Repository = "https://github.com/Aitherium/awdecide.git"
+Issues = "https://github.com/Aitherium/awdecide/issues"
+
+[tool.setuptools]
+packages = ["awdecide"]
+license-files = ["LICENSE"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = ["E501", "E402", "E741"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

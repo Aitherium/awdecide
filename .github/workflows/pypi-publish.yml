@@ -1,0 +1,46 @@
+name: Publish to PyPI
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package + test tools
+        run: |
+          pip install build
+          # `.[dev]` and not `.` -- awdecide has ZERO runtime dependencies, so a
+          # bare `pip install .` succeeds and installs no test runner at all. The
+          # suite then collects nothing and pytest exits 5, which reads as a
+          # generic failure rather than "the tests never ran". `[dev]` is the one
+          # extra, and pytest is what is in it. Install what the tests need.
+          pip install -e ".[dev]"
+          pip install pytest-timeout
+      - name: Run the test suite before publishing
+        run: |
+          # `-p no:randomly` is not needed; what IS needed is a floor. pytest
+          # exits 5 when nothing is collected, which reads as a generic failure;
+          # this says what actually happened.
+          python -m pytest tests/ -q --timeout=180 || {
+            rc=$?
+            [ "$rc" = "5" ] && echo "::error::no tests ran - the suite skipped everything, most likely a missing optional dependency. Refusing to publish an untested artifact."
+            exit $rc
+          }
+      - name: Build package
+        run: python -m build
+      - name: Moat guard (inspect built wheel + sdist)
+        run: python scripts/check_moat_boundary.py
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: true
