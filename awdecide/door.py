@@ -53,6 +53,8 @@ from typing import Any, Dict, List, Optional
 from .contract import Decision, Question, undecided
 
 DEFAULT_SVC_DIR = os.getenv("AITHER_WM_SVC_DIR", "D:/arc-agi-3/arc-world-model-svc")
+#: The engine the package ships with, used when no service tree is on the machine.
+VENDORED_DIR = Path(__file__).resolve().parent / "door_local"
 DEFAULT_URL = os.getenv("AITHER_DECIDE_URL", "http://127.0.0.1:8299/v1")
 _KIND_TO_DOOR = {"choice": "choice", "score": "score", "bool": "yesno"}
 _DOOR_TO_KIND = {"choice": "choice", "score": "score", "yesno": "bool"}
@@ -168,13 +170,25 @@ def load_service(svc_dir: Optional[str] = None, ckpt_dir: Optional[str] = None):
     ckpt dir per process at a time -- tests use one per phase, not two at once).
     """
     svc = Path(svc_dir or DEFAULT_SVC_DIR)
+    vendored = False
     if not (svc / "decide.py").is_file() or not (svc / "code_domains.py").is_file():
-        raise ImportError(f"door service tree not at {svc} (set AITHER_WM_SVC_DIR)")
+        # No service tree on this machine: the package carries its own copy of the
+        # engine (awdecide/door_local, written only by scripts/vendor_door.py), so
+        # `pip install awdecide` is enough to run the door in-process. An explicit
+        # svc_dir that does not exist is still an error -- the caller asked for it.
+        if svc_dir is not None or not (VENDORED_DIR / "decide.py").is_file():
+            raise ImportError(f"door service tree not at {svc} (set AITHER_WM_SVC_DIR)")
+        svc, vendored = VENDORED_DIR, True
     if ckpt_dir:
         os.environ["AITHER_WM_CKPT_DIR"] = str(ckpt_dir)
     elif not os.environ.get("AITHER_WM_CKPT_DIR"):
-        raise ImportError("AITHER_WM_CKPT_DIR is unset and no ckpt_dir given -- refusing to "
-                          "journal into the service's default /models/world-model")
+        if not vendored:
+            raise ImportError("AITHER_WM_CKPT_DIR is unset and no ckpt_dir given -- refusing to "
+                              "journal into the service's default /models/world-model")
+        # the vendored door journals under the user's home, never a service path
+        home = Path.home() / ".awdecide" / "door"
+        home.mkdir(parents=True, exist_ok=True)
+        os.environ["AITHER_WM_CKPT_DIR"] = str(home)
     if str(svc) not in sys.path:
         sys.path.insert(0, str(svc))
     code_domains = importlib.import_module("code_domains")
@@ -191,6 +205,12 @@ def make_decider(svc_dir: Optional[str] = None, ckpt_dir: Optional[str] = None, 
     """A private in-process Decider journaling into ckpt_dir. kw -> decide.Decider."""
     code_domains, decide = load_service(svc_dir, ckpt_dir)
     record_dir = Path(os.environ["AITHER_WM_CKPT_DIR"])
+    if Path(decide.__file__).resolve().parent == VENDORED_DIR:
+        # The vendored door has no fleet behind it: a model rung or an embedder is
+        # ON only when the user names one. Otherwise a cold fork reads `none` at
+        # once instead of after a connection attempt to a server that is not there.
+        kw.setdefault("llm_enabled", bool(os.environ.get("AITHER_DECIDE_LLM_URL")))
+        kw.setdefault("embed_enabled", bool(os.environ.get("AITHER_DECIDE_EMBED_URL")))
     return decide.Decider(code_domains.DomainEngines(), record_dir=record_dir, **kw)
 
 

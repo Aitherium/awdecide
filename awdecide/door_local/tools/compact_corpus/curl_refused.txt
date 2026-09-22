@@ -1,0 +1,12 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0   0     0   0     0     0     0  --:--:-- --:--:-- --:--:--     0*   Trying 127.0.0.1:9...
+
+  0     0   0     0   0     0     0     0  --:--:--  0:00:01 --:--:--     0* connect to 127.0.0.1 port 9 from 0.0.0.0 port 26827 failed: Connection refused
+* Failed to connect to 127.0.0.1 port 9 after 2028 ms: Could not connect to server
+
+  0     0   0     0   0     0     0     0  --:--:--  0:00:02 --:--:--     0
+* closing connection #0
+curl: (7) Failed to connect to 127.0.0.1 port 9 after 2028 ms: Could not connect to server
+exit code: 7

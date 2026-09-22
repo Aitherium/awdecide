@@ -1,0 +1,86 @@
+# Per-token list prices, for turning a benchmark's token counts into dollars.
+#
+# Why this file exists: "cheaper" is the claim being made about decision models,
+# and a benchmark that counts MODEL CALLS instead of money is not an answer. Every
+# row is a published list price in USD per 1,000,000 tokens, with the date it was
+# read. Nothing here is negotiated or blended -- if you have a contract price, set
+# it in your own overlay rather than editing these.
+#
+# Read by: AitherOS/dev/tools/decision_proof.py and the world model's
+# tools/judge_bench.py (via --prices). A model that is not listed is reported as
+# "unpriced", never as free: a silent zero is how a cost claim becomes a lie.
+#
+# Local models: the marginal price of a token on hardware we already own and
+# already power is not zero, but it is not a token price either. `local: true`
+# rows carry no usd figure on purpose; the honest local number is the
+# amortised $/hour of the box divided by throughput, which belongs in a capacity
+# model, not here.
+
+version: 1
+read_on: 2026-09-19
+
+models:
+  # --- frontier APIs (the baseline an LLM-judge setup actually pays) ---
+  # Vendor ids. Re-read 2026-09-20 at platform.claude.com/docs/en/about-claude/pricing:
+  # the 09-19 rows had Sonnet 5 at 3/15 and Opus 5 at 15/75; the page says Sonnet 5's
+  # 2/10 launch price is now the standard price and Opus 5 is 5/25.
+  claude-sonnet-5:
+    provider: anthropic
+    input_usd_per_1m: 2.00
+    output_usd_per_1m: 10.00
+    source: "platform.claude.com pricing page, read 2026-09-20 (base input, output)"
+  claude-opus-5:
+    provider: anthropic
+    input_usd_per_1m: 5.00
+    output_usd_per_1m: 25.00
+    source: "platform.claude.com pricing page, read 2026-09-20 (base input, output)"
+  claude-haiku-4-5:
+    provider: anthropic
+    input_usd_per_1m: 1.00
+    output_usd_per_1m: 5.00
+    source: "platform.claude.com pricing page, read 2026-09-20 (base input, output)"
+  # The NAMES MicroScheduler routes (cloud_providers.yaml `anthropic.models`). A bench
+  # asks for these; the wire carries the api_model. Priced as that vendor id.
+  claude-sonnet-4:
+    provider: anthropic
+    api_model: claude-sonnet-5
+    input_usd_per_1m: 2.00
+    output_usd_per_1m: 10.00
+    source: "alias of claude-sonnet-5 (cloud_providers.yaml api_model); price read 2026-09-20"
+  claude-3.5-haiku:
+    provider: anthropic
+    api_model: claude-haiku-4-5
+    input_usd_per_1m: 1.00
+    output_usd_per_1m: 5.00
+    source: "alias of claude-haiku-4-5 (cloud_providers.yaml api_model); price read 2026-09-20"
+
+  # --- the cloud fallback this fleet already routes to ---
+  deepseek-chat:
+    provider: deepseek
+    input_usd_per_1m: 0.27
+    output_usd_per_1m: 1.10
+    source: "deepseek platform pricing, read 2026-09-19 (cache-miss input)"
+  deepseek-flash:
+    provider: deepseek
+    input_usd_per_1m: 0.27
+    output_usd_per_1m: 1.10
+    source: "deepseek platform pricing, read 2026-09-19; same tier as deepseek-chat"
+  deepseek-reasoner:
+    provider: deepseek
+    input_usd_per_1m: 0.55
+    output_usd_per_1m: 2.19
+    source: "deepseek platform pricing, read 2026-09-19 (cache-miss input)"
+
+  # --- ours, served on our own hardware ---
+  default:
+    provider: local
+    local: true
+    note: "served by MicroScheduler on the 5090; no per-token price applies"
+  gemma4-12b:
+    provider: local
+    local: true
+    note: "vllm_gemma4_12b on the 5090 via MicroScheduler; no per-token price applies"
+  local-embed:
+    provider: local
+    local: true
+    note: "the micro-embedder behind the door's neighbour rung"

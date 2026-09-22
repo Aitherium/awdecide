@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.0 -- 2026-09-21
+
+- `awdecide.door_local`: the door's engine vendored into the package -- `decide.py`,
+  `judge.py`, `compact.py`, `multi.py`, the tabular domain engine, the bench scripts,
+  the compaction corpus and the generated half of the labelled judge dataset (408 rows
+  / 1,567 criteria). `DoorBackend()` uses it when no `url` is given and no service tree
+  is on the machine (`transport == "inprocess"`), journaling under `~/.awdecide/door`.
+  Written only by `scripts/vendor_door.py`, which is also the drift check; one
+  deployment's host names, model aliases, paths and ticket ids are rewritten out, the
+  rewrites declared in `VENDORED.json`.
+- `awdecide door-bench <name>`: runs `judge-holdout`, `judge-heldout`, `compact`,
+  `cache-cost`, `calibration` or `judge` from the installed package with the shipped
+  price table; exit code is the bench's own verdict.
+- `awdecide[door]` extra: numpy, for the neural rung and its trainer. The tabular
+  engine needs nothing.
+- Measured from the package, 5 seeds held out by row: 94.0% coverage, 98.4% accuracy
+  when answered vs a 97.3% lookup floor; the neural rung beats the floor on every seed.
+
 ## 0.3.0 -- 2026-09-21
 
 - `Loop` (`awdecide/loop.py`): the rung a stateless decider cannot have. It wraps any

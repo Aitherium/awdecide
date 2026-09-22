@@ -1,0 +1,41 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0   0     0   0     0     0     0  --:--:-- --:--:-- --:--:--     0*   Trying 127.0.0.1:8299...
+* Established connection to 127.0.0.1 (127.0.0.1 port 8299) from 127.0.0.1 port 24252 
+* using HTTP/1.x
+> POST /v1/decide/batch HTTP/1.1
+
+> Host: 127.0.0.1:8299
+
+> User-Agent: curl/8.17.0
+
+> Accept: */*
+
+> Content-Type: application/json
+
+> Content-Length: 12
+
+> 
+
+} [12 bytes data]
+* upload completely sent off: 12 bytes
+< HTTP/1.1 401 Unauthorized
+
+< date: Sun, 20 Sep 2026 15:41:53 GMT
+
+< server: uvicorn
+
+< www-authenticate: Bearer
+
+< content-length: 33
+
+< content-type: application/json
+
+< 
+
+{ [33 bytes data]
+
+100    45 100    33 100    12  1151   418  --:--:-- --:--:-- --:--:--  1607{"detail":"missing bearer token"}
+* Connection #0 to host 127.0.0.1:8299 left intact
+exit code: 0

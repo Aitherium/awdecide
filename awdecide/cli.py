@@ -168,6 +168,13 @@ def _door_args(sp: argparse.ArgumentParser) -> None:
     sp.add_argument("--door-svc", default="", help="in-process: AITHER_WM_SVC_DIR")
 
 
+def cmd_door_bench(args: argparse.Namespace) -> int:
+    from .local import run_bench
+
+    rest = [a for a in (args.rest or []) if a != "--"]
+    return run_bench(args.name, rest, ckpt_dir=args.ckpt_dir, json_out=args.json)
+
+
 def main(argv: List[str] | None = None) -> int:
     # GENERATED doctor intercept (gen_aw_doctor.py) -- do not edit
     _dv = locals().get("argv")
@@ -241,6 +248,15 @@ def main(argv: List[str] | None = None) -> int:
     b.add_argument("--brain-acc", type=float, default=0.70)
     b.add_argument("--seed", type=int, default=7)
     b.set_defaults(fn=cmd_bench)
+    db = sub.add_parser("door-bench",
+                        help="run one of the door's own benches from the installed package "
+                             "(judge-holdout, compact, cache-cost, calibration, judge)")
+    db.add_argument("name")
+    db.add_argument("--ckpt-dir", default=None,
+                    help="scratch journal dir (default ~/.awdecide/bench-ckpt)")
+    db.add_argument("--json", action="store_true")
+    db.add_argument("rest", nargs=argparse.REMAINDER, help="passed through to the bench")
+    db.set_defaults(fn=cmd_door_bench)
 
     args = p.parse_args(argv)
     if args.self_test:

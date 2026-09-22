@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "awdecide"
-version = "0.3.0"
+version = "0.4.0"
 description = "One typed-decision contract -- choice / score / bool with a probability -- fail-closed, with a Brier ledger. Aither World Decide."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,6 +13,9 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0"]
+# the vendored door (awdecide.door_local) runs on the stdlib; numpy lights its
+# neural rung and the trainer, nothing else needs it
+door = ["numpy>=1.24"]
 
 [project.scripts]
 awdecide = "awdecide.cli:main"
@@ -24,12 +27,23 @@ Repository = "https://github.com/Aitherium/awdecide.git"
 Issues = "https://github.com/Aitherium/awdecide/issues"
 
 [tool.setuptools]
-packages = ["awdecide"]
 license-files = ["LICENSE"]
+
+[tool.setuptools.packages.find]
+include = ["awdecide*"]
+
+[tool.setuptools.package-data]
+# the vendored door ships its manifest, the bench corpus and dataset, and the
+# price table -- the files door-bench reads at runtime
+"awdecide.door_local" = ["VENDORED.json", "world_model/**/*.py"]
+"awdecide.door_local.tools" = ["*.yaml", "eval_cases/*", "compact_corpus/*"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py310"
+# door_local is vendored and sha256-pinned (scripts/vendor_door.py); its style is
+# the source tree's, and an edit here would be a fork
+extend-exclude = ["awdecide/door_local"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]
