@@ -29,7 +29,7 @@ from .door import DoorBackend, decision_from_door, door_request
 from .ledger import Ledger
 from .loop import ChatBackend, Loop
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 __all__ = [
     "Backend", "CallableBackend", "Ladder", "LogprobBackend", "RulesBackend",
     "default_ladder", "parse_question_spec", "Decision", "Question",
