@@ -135,7 +135,7 @@ Secrets: the excerpts name secret KEYS (`AITHER_INTERNAL_SECRET`, `redis_passwor
 | podlog-mcpgateway-standalone-genesis-timeout | partial | podman-logs:the-service | `podman logs --tail 80 the-service` tail lines 67-80 |
 | podlog-microscheduler-backend-refused-cloud-fallback | partial | podman-logs:the-service | `podman logs --tail 80 the-service` tail lines 67-80 |
 | podlog-postgres-checkpoint-and-resets | looks-red-is-green | podman-logs:the-service | `podman logs --tail 80 the-service` tail lines 67-80 |
-| podlog-worker-nanogpt-weights-json-frames | crash | podman-logs:aither-worker | `podman logs --tail 80 aither-worker` tail lines 60-80 |
+| podlog-worker-nanogpt-weights-json-frames | crash | podman-logs:the-worker | `podman logs --tail 80 the-worker` tail lines 60-80 |
 | podlog-pulse-slow-publish-and-404s | red | podman-logs:aither-pulse | `podman logs --tail 80 aither-pulse` tail lines 67-80 |
 | podlog-secrets-401-404-by-name | red | podman-logs:the-service | `podman logs --tail 80 the-service` tail lines 67-80 |
 | podlog-world-model-train-200s | green | podman-logs:the-service | `podman logs --tail 80 the-service` tail lines 66-79 |

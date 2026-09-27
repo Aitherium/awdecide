@@ -1,7 +1,7 @@
 {
   "cases_dropped_transcribed": 55,
   "door_source": {
-    "commit": "06d2490586fd",
+    "commit": "eb6d5b2331f5",
     "repo": "arc-world-model-svc"
   },
   "files": {
@@ -23,8 +23,8 @@
     "tools/compact_corpus/pytest_pass.txt": "04952966e26f8d1f9037e745b1d5bbfd2dcee3442fad8eb17deb6f4f1545d17b",
     "tools/compact_corpus/ruff.txt": "f48ac43e575ea607e518785e4f3702419c21217bb79a39b5a9a683c01150acfd",
     "tools/compact_corpus/test_scratch_fail.py.txt": "f321bf2121862db3d3d5bfb9bd3d5682637b34b0fbc825f2d6425aebb2dc5381",
-    "tools/eval_cases/README.md": "cc6241bfc1dacea9b4e10a5b53d600a2ace36036b45c41a12e309ac3915bfe87",
-    "tools/eval_cases/cases.jsonl": "7e4aca33fac799b0a1c04d067a3c3e768f90508a90f3cb53378e88e5ecc7a32a",
+    "tools/eval_cases/README.md": "96e04bdbb9e9abf9c41d73d7150be07ed86f43f9731350448aa1857804e7713d",
+    "tools/eval_cases/cases.jsonl": "cadc0a402dcb4ef1e10db9827d7919914fa90321835053aff23ef3264e00f360",
     "tools/hostpaths.py": "7e2a96ba3217eb46dd7499b3b6b7a14f31e3f7b54812329153600c87b9974435",
     "tools/judge_bench.py": "1ea5360373a620d616ba6a7def76684570b37d11778faf082d6112e6870abd64",
     "tools/judge_heldout_bench.py": "3cef77bcb22fe130cb42473a9f4278ee530f4e6306be59dc239c24cb3d955241",
@@ -53,6 +53,8 @@
     "one deployment's model alias",
     "fixture text",
     "container names in prose and captured output",
+    "model-server container names",
+    "the worker container's name",
     "a customer's hostname in a captured log",
     "a customer's name in captured output",
     "CA path",
@@ -62,10 +64,10 @@
     "internal ledger id",
     "internal checker rule id"
   ],
-  "scrub_sha256": "efc45704f7a68ed07e5adab7ef25eba50dc01cf4fffab359198b7a94b42fae8c",
-  "scrub_version": 2,
+  "scrub_sha256": "9b92936cc27ab9e6507cb8b12d0f7cdb2805afae67bc1639ee10c86f813fb9a6",
+  "scrub_version": 3,
   "world_model_source": {
-    "commit": "bd89c13274ce",
+    "commit": "72e29a1b2aa3",
     "repo": "AitherOS packages/world-model"
   }
 }

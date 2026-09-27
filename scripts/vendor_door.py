@@ -76,7 +76,7 @@ WM_SUFFIXES = (".py",)                       # world_model: code only, no tests
 #: The declared rewrites. (pattern, replacement, why). Applied to every carried
 #: text file in this order; the manifest records the version so a check can tell
 #: "the scrub changed" from "the source changed".
-SCRUB_VERSION = 2
+SCRUB_VERSION = 3
 SCRUB: List[Tuple[str, str, str]] = [
     (r"https://aitheros-microscheduler:8150/v1", "http://127.0.0.1:8080/v1",
      "the default brain is whatever OpenAI-style server the user runs, not one fleet's"),
@@ -90,6 +90,8 @@ SCRUB: List[Tuple[str, str, str]] = [
     # no \b here: in a JSON row the name follows a literal backslash-n, and a word
     # boundary between `n` and `a` does not exist -- the escape hides the name
     (r"aitheros-[a-z0-9-]+", "the-service", "container names in prose and captured output"),
+    (r"aither-vllm-[a-z0-9-]+", "the-model-server", "model-server container names"),
+    (r"aither-worker", "the-worker", "the worker container's name"),
     (r"garg\.aitherium\.com", "client.example.com", "a customer's hostname in a captured log"),
     (r"garg[a-z0-9-]*", "client", "a customer's name in captured output"),
     (r"/app/AitherOS/Library/Data/tls/ca-chain\.pem", "/etc/ssl/certs/door-ca.pem", "CA path"),
@@ -371,10 +373,10 @@ def self_test() -> int:
     # the scrub removes every declared shape and leaves code compilable
     sample = ('URL = "https://aitheros-microscheduler:8150/v1"  # see D-1234 and PQ010\n'
               'P = r"C:\\AitherOS-Fresh\\x"; M = "aither-orchestrator"\n'
-              'E = "aither-code-embed-0.6b"\n')
+              'E = "aither-code-embed-0.6b"; W = "aither-worker aither-vllm-fp16"\n')
     out = scrub(sample)
     for bad in ("aitheros-", "D-1234", "PQ010", "AitherOS-Fresh", "aither-orchestrator",
-                "aither-code-embed"):
+                "aither-code-embed", "aither-worker", "aither-vllm"):
         if bad in out:
             print(f"SELF-TEST FAILED: scrub left {bad!r} in {out!r}")
             return 1
