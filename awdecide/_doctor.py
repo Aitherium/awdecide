@@ -33,7 +33,7 @@ PAIRS_WITH = ['awclassify', 'adk', 'awgraph', 'awpredict', 'awprove', 'awrepl', 
 #: platform-wide vars it also touches would be noise, and a doctor that floods
 #: gets ignored.
 ENV_REQUIRED = []
-ENV_OPTIONAL = ['AWDECIDE_DB']
+ENV_OPTIONAL = ['AWDECIDE_DB', 'AWDECIDE_LLM_KEY', 'AWDECIDE_LLM_MODEL', 'AWDECIDE_LLM_URL']
 
 
 def _installed(mod: str) -> "str | None":
