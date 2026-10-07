@@ -1,0 +1,6 @@
+# LF everywhere, for every checkout of this package -- including the PUBLIC
+# mirror, which carries no root .gitattributes of its own. The vendored door
+# copy is manifest-hashed byte for byte (scripts/vendor_door.py --offline);
+# a Windows checkout with autocrlf CRLF'd 34 files and the manifest check
+# failed on the hosted windows runner while ubuntu stayed green (2026-10-07).
+* text=auto eol=lf
