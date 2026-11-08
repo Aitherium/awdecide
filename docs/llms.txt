@@ -31,6 +31,8 @@ Ask one typed question of one state and read back a decision, a probability, and
 ## Where it lives
 
 - Repo: https://github.com/Aitherium/awdecide
+- Docs: https://aitherium.github.io/awdecide/
+- Manifest (keys + the one-line adoption story): https://aitherium.github.io/awdecide/aither-manifest.json
 
 This repository is mirrored from the AitherOS monorepo by `.github/workflows/sync-awdecide.yml`; hand edits made here are overwritten on the next sync — change the source instead.
 
