@@ -16,5 +16,15 @@
     "awtoll",
     "awrepl"
   ],
-  "includes": []
+  "includes": [],
+  "metrics": {
+    "files": {
+      "value": 89,
+      "as_of": "2026-11-08T07:46:23-08:00"
+    },
+    "tests": {
+      "value": 9,
+      "as_of": "2026-11-08T07:46:23-08:00"
+    }
+  }
 }
