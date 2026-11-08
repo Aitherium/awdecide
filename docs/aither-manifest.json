@@ -5,7 +5,7 @@
   "url": "https://aitherium.github.io/awdecide/",
   "repository": "https://github.com/Aitherium/awdecide",
   "kind": "tool",
-  "status": "no-pages",
+  "status": "public",
   "adopt": "Ask one typed question of one state and read back a decision, a probability, and decided=False when nothing earned it.",
   "pairs_with": [
     "awclassify",
@@ -16,15 +16,5 @@
     "awtoll",
     "awrepl"
   ],
-  "includes": [],
-  "metrics": {
-    "files": {
-      "value": 86,
-      "as_of": "2026-11-08T07:11:35-08:00"
-    },
-    "tests": {
-      "value": 9,
-      "as_of": "2026-11-08T07:11:35-08:00"
-    }
-  }
+  "includes": []
 }
