@@ -29,6 +29,7 @@ from __future__ import annotations
 import json
 import math
 import re
+import threading
 import urllib.error
 import urllib.request
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
@@ -150,6 +151,102 @@ class LogprobBackend(Backend):
                 if opt.lower().startswith(tok) or tok.startswith(opt.lower()):
                     out[opt] = out.get(opt, 0.0) + p
         return out
+
+
+class DeciderBackend(Backend):
+    """A decision MODEL as a rung: Perplexity Decider (pplx-decider-flash-v1.3,
+    Apache-2.0) or any checkpoint that speaks its `decide(request) -> response`
+    protocol. One forward pass reads the state and returns a temperature-
+    calibrated distribution over the options -- no generation, no parsing, no
+    stated-confidence number -- so it sits BEFORE a chat model in the ladder.
+
+    The model is loaded lazily on the first question, from a local checkpoint
+    directory (the repo snapshot: weights + `source/src/pplx_decider`). Torch and
+    transformers are imported only then; the rest of awdecide stays stdlib.
+    `decider=` injects any object with `.decide(request)` (tests, a remote shim).
+
+    Mapping: choice -> `choice` with the options as criteria; score -> `score`
+    with the levels low->high; bool -> `noul` (P(true) is P(yes)). `q.prompt`
+    becomes the question's `instructions`.
+    """
+
+    name = "decider"
+    calibrated = True
+
+    def __init__(self, checkpoint: str = "", *, device: str = "cuda",
+                 decider: Any = None) -> None:
+        if decider is None and not checkpoint:
+            raise ValueError("DeciderBackend needs a checkpoint directory (or decider=)")
+        self.checkpoint, self.device = checkpoint, device
+        self._decider = decider
+        self._lock = threading.Lock()
+
+    def _load(self) -> Any:
+        with self._lock:
+            if self._decider is None:
+                self._decider = load_decider(self.checkpoint, device=self.device)
+        return self._decider
+
+    @staticmethod
+    def request(state: str, q: Question) -> Dict[str, Any]:
+        spec: Dict[str, Any]
+        if q.kind == "bool":
+            spec = {"type": "noul"}
+        elif q.kind == "score":
+            spec = {"type": "score", "criteria": list(q.options)}
+        else:
+            spec = {"type": "choice", "criteria": {o: None for o in q.options}}
+        if q.prompt:
+            spec["instructions"] = q.prompt
+        elif q.kind == "bool":
+            spec["instructions"] = "Is the statement true?"
+        return {"state": state, "questions": {"q": spec}}
+
+    @staticmethod
+    def weights_from_response(resp: Dict[str, Any], q: Question) -> Weights:
+        ans = (resp.get("answers") or {}).get("q") or {}
+        if q.kind == "bool":
+            p = float(ans["noul"])
+            return {"yes": p, "no": 1.0 - p}
+        probs = ans.get("probabilities") or {}
+        if q.kind == "score":  # keyed by level index "0".."n-1", low -> high
+            return {lvl: float(probs.get(str(i), 0.0)) for i, lvl in enumerate(q.options)}
+        return {o: float(probs.get(o, 0.0)) for o in q.options}
+
+    def weights(self, state: str, q: Question) -> Weights:
+        resp = self._load().decide(self.request(state, q))
+        return self.weights_from_response(resp, q)
+
+
+def load_decider(checkpoint: str, *, device: str = "cuda") -> Any:
+    """Load a pplx_decider checkpoint directory with its own reference code.
+
+    Weights stream straight onto `device` (transformers `device_map`) instead of
+    being staged in host RAM first -- the reference loader materializes the full
+    BF16 backbone on the CPU (~9 GB for the 4B), which a host near its commit
+    limit cannot spare. Locate (the span adapter) is left off: decisions only.
+    """
+    import sys
+    from pathlib import Path
+
+    ckpt = Path(checkpoint)
+    src = ckpt / "source" / "src"
+    if not (src / "pplx_decider").is_dir():
+        raise RuntimeError(f"{ckpt} has no source/src/pplx_decider (is it a decider snapshot?)")
+    if str(src) not in sys.path:
+        sys.path.insert(0, str(src))
+    import pplx_decider.model as pm  # type: ignore[import-not-found]
+
+    dense = json.loads((ckpt / "config.json").read_text(encoding="utf-8")).get(
+        "model_type") == "qwen3_5"
+    if dense and device != "cpu" and hasattr(pm, "_backbone"):
+        def _backbone(path: Any, config: Any, dtype: Any) -> Any:
+            from transformers.models.qwen3_5.modeling_qwen3_5 import Qwen3_5Model
+
+            return Qwen3_5Model.from_pretrained(str(path), dtype=dtype, attn_implementation="sdpa",
+                                                device_map=device)
+        pm._backbone = _backbone
+    return pm.Decider.from_pretrained(ckpt, device=device, locate=False)
 
 
 class Ladder:

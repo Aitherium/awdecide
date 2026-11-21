@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- `DeciderBackend`: a decision MODEL as a ladder rung -- Perplexity Decider
+  (`pplx-decider-flash-v1.3`) or any checkpoint with its `decide(request)` protocol.
+  choice / score / bool map to its choice / score / noul questions; the answer is the
+  model's temperature-calibrated distribution. Lazy: torch loads on the first decision,
+  weights stream straight to the device. `AWDECIDE_DECIDER_CKPT` (+ `AWDECIDE_DECIDER_DEVICE`)
+  puts it ahead of the chat brain in `awdecide mcp` / `awdecide serve`.
+
 ## 0.4.0 -- 2026-09-21
 
 - `awdecide.door_local`: the door's engine vendored into the package -- `decide.py`,

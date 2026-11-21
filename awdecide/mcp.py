@@ -11,6 +11,12 @@ OpenAI-wire endpoint; `AWDECIDE_LLM_KEY` or `OPENAI_API_KEY` for a bearer) an
 unseen decision is asked of that model. Without it an unseen decision comes
 back `decided=false` and the caller decides -- then teaches the outcome, and
 the next sighting is answered from evidence either way.
+
+A decision MODEL can sit in front of that brain: `AWDECIDE_DECIDER_CKPT` names a
+local Decider checkpoint directory (e.g. pplx-decider-flash-v1.3) and
+`AWDECIDE_DECIDER_DEVICE` its device (default cuda). It answers an unseen
+decision in one forward pass with a calibrated probability; it loads lazily, so
+the server starts without torch and the first decision pays the load.
 """
 from __future__ import annotations
 
@@ -21,7 +27,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .backends import Backend, Ladder
+from .backends import Backend, DeciderBackend, Ladder
 from .contract import KINDS, Question
 from .ledger import Ledger
 from .loop import ChatBackend, Loop
@@ -32,6 +38,9 @@ DEFAULT_PORT = 8297
 
 def env_ladder() -> Ladder:
     rungs: List[Backend] = []
+    ckpt = os.getenv("AWDECIDE_DECIDER_CKPT", "")
+    if ckpt:
+        rungs.append(DeciderBackend(ckpt, device=os.getenv("AWDECIDE_DECIDER_DEVICE") or "cuda"))
     url, model = os.getenv("AWDECIDE_LLM_URL", ""), os.getenv("AWDECIDE_LLM_MODEL", "")
     if url and model:
         rungs.append(ChatBackend(url, model, token=os.getenv("AWDECIDE_LLM_KEY")

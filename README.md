@@ -109,6 +109,13 @@ The harness's own model is the brain on the first sighting; the ledger is the me
 every one after. To give the loop its own brain, point it at any OpenAI-wire endpoint:
 `AWDECIDE_LLM_URL`, `AWDECIDE_LLM_MODEL`, optional `AWDECIDE_LLM_KEY`.
 
+A decision model can answer before that brain: `AWDECIDE_DECIDER_CKPT` names a local
+checkpoint directory of Perplexity's Decider (e.g. `pplx-decider-flash-v1.3`, Apache-2.0;
+weights + its `source/src/pplx_decider`) and `AWDECIDE_DECIDER_DEVICE` its device (default
+`cuda`). `DeciderBackend` returns the model's calibrated distribution from one forward pass;
+torch is imported only when the first decision loads it. Measure it on your own decisions
+first: on code-review blockers it was far worse than a whole-file LLM re-read.
+
 ```python
 from awdecide import Loop, Ladder, Ledger, Question, ChatBackend
 

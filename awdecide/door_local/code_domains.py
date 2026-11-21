@@ -65,7 +65,7 @@ _CKPT_DIR = Path(os.environ.get("AITHER_WM_CKPT_DIR", "/models/world-model"))
 # The allowlist is a GUARD, not a ceiling. Every other knob in this file is
 # already env-driven and every mechanism below (engine, journal, autosave,
 # tabular->hybrid->neural escalation) is per-domain and generic, so nothing but
-# this hardcoded pair stopped the platform teaching this model about its OTHER
+# this hardcoded list stopped the platform teaching this model about its OTHER
 # systems and graphs. It stays an ALLOWLIST rather than becoming open, because
 # the real cost of a new domain is not registration — it is a STABLE DESCRIPTOR.
 # Two callers writing different descriptors for the same state make the engine
@@ -76,7 +76,12 @@ _CKPT_DIR = Path(os.environ.get("AITHER_WM_CKPT_DIR", "/models/world-model"))
 #   * AITHER_WM_DOMAINS="infra,graph_code,graph_deploy"   (needs a recreate), or
 #   * a `domains.allow` file in the ckpt dir, one name per line — that directory
 #     is a host bind mount, so a RESTART picks it up with no compose change.
-_DEFAULT_DOMAINS = {"code", "sandbox"}
+#
+# `screen` is a BUILT-IN default (2026-11-19): the awscreen slice observes screen
+# states through this same engine, so a fresh install must learn it with no hand
+# edit to a host bind mount. This set is the repo's source of truth; the ckpt file
+# and the env var stay OVERRIDES and are unioned on top.
+_DEFAULT_DOMAINS = {"code", "sandbox", "screen"}
 
 
 def _extra_domains() -> set:
