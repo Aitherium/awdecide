@@ -190,9 +190,18 @@ def main(argv: List[str] | None = None) -> int:
         _sv = locals().get("argv")
         if _aw_state.cli_banner(_sv if _sv is not None else __import__("sys").argv[1:]):
             return 0
-    p = argparse.ArgumentParser(prog="awdecide", description=__doc__.splitlines()[0])
+    p = argparse.ArgumentParser(
+        prog="awdecide",
+        description=(
+            "awdecide — Automated Typed-Decision Ladder + Brier Ledger "
+            "(for Human Decision Cards, use `adk decide`)."
+        ),
+    )
     p.add_argument("--version", action="version", version=f"awdecide {__version__}")
-    p.add_argument("--self-test", action="store_true", help="prove the contract can fail")
+    p.add_argument(
+        "--self-test", "--selftest", dest="self_test", action="store_true",
+        help="prove the contract can fail",
+    )
     p.add_argument("--db", default="",
                    help="ledger path (default $AWDECIDE_DB or ~/.aither/awdecide.db)")
     sub = p.add_subparsers(dest="command")
